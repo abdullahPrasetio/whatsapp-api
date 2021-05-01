@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whatsapp API</title>
+</head>
+<body>
+    <h1>Whatsapp Api </h1>
+    <p>Powered by By Teman Coders</p>
+    <img src="" alt="QR Code" id="qrcode">
+    <h4>Logs:</h4>
+    <ul class="logs">
+
+    </ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js" integrity="sha512-eVL5Lb9al9FzgR63gDs1MxcDS2wFu3loYAgjIH0+Hg38tCS8Ag62dwKyH+wzDb+QauDpEZjXbMn11blw8cbTJQ==" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function(){
+            var socket=io.connect('http://localhost:3000',{path:'/socket.io'});
+            socket.on("message",function(msg){
+                console.log(msg);
+                $('.logs').append($('<li>').text(msg));
+            });
+
+            socket.on("qr",function(qr){
+                $("#qrcode").attr('src',qr);
+            });
+
+            socket.on("ready",function(src){
+                $("#qrcode").hide();
+
+            });
+            socket.on("authenticated",function(src){
+                $("#qrcode").hide();
+            });
+        });
+    </script>
+</body>
+</html>
