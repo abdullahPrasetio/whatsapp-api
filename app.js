@@ -49,16 +49,16 @@ const client = new Client({
   session: sessionCfg,
 });
 
-client.on("message", (msg) => {
+client.on("message", async (msg) => {
   const keyword = msg.body.toLowerCase();
-    const replyMessage = await db.getReply(keyword);
+  const replyMessage = await db.getReply(keyword);
 
-    if (replyMessage !== false) {
-      msg.reply(replyMessage);
-    }
-    if (msg.body == "!ping") {
-      msg.reply("pong");
-    }
+  if (replyMessage !== false) {
+    msg.reply(replyMessage);
+  }
+  if (msg.body == "!ping") {
+    msg.reply("pong");
+  }
 });
 
 client.initialize();
