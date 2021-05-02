@@ -14,7 +14,7 @@ const db = require("./helpers/db");
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-
+const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(express.urlencoded({}));
 app.use(fileUpload({ debug: true }));
@@ -187,6 +187,6 @@ app.post("/send-media", async (req, res) => {
     });
 });
 
-server.listen(3000, function () {
-  console.log(`App running on *:`, +3000);
+server.listen(port, function () {
+  console.log(`App running on *:`, +port);
 });
