@@ -9,6 +9,8 @@ const { phoneNumberFormatter } = require("./helpers/formatter");
 const fileUpload = require("express-fileupload");
 const axios = require("axios");
 
+const db = require("./helpers/db");
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -48,9 +50,15 @@ const client = new Client({
 });
 
 client.on("message", (msg) => {
-  if (msg.body == "!ping") {
-    msg.reply("pong");
-  }
+  const keyword = msg.body.toLowerCase();
+    const replyMessage = await db.getReply(keyword);
+
+    if (replyMessage !== false) {
+      msg.reply(replyMessage);
+    }
+    if (msg.body == "!ping") {
+      msg.reply("pong");
+    }
 });
 
 client.initialize();

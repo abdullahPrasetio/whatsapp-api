@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whatsapp API</title>
+    <style>
+        .client{
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-sizing: border-box;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .hide{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Whatsapp Api </h1>
+    <p>Powered by By Teman Coders</p>
+
+    <div id="app">
+        <div class="form-container">
+            <label for="client-id">ID</label>
+            <br>
+            <input type="text" id="client-id" placeholder="masukkan ID">
+            <br><br>
+            <label for="client-description">Deskripsi</label>
+            <br>
+            <textarea name="description" id="client-description" cols="30" rows="5"></textarea>
+            <br><br>
+            <button class="add-client-btn">Tambah Client</button>
+        </div>
+        <hr>
+        <div class="client-container">
+            <div class="client hide">
+                <h3 class="title">
+
+                </h3>
+                <p class="description"></p>
+                <img src="" alt="QR Code" id="qrcode">
+                <h4>Logs:</h4>
+                <ul class="logs">
+            
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js" integrity="sha512-eVL5Lb9al9FzgR63gDs1MxcDS2wFu3loYAgjIH0+Hg38tCS8Ag62dwKyH+wzDb+QauDpEZjXbMn11blw8cbTJQ==" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function(){
+            var socket=io.connect('http://localhost:3000',{path:'/socket.io'});
+            
+            // ketika button tambah di click
+            $('.add-client-btn').on('click',function(){
+                var clientId=$('#client-id').val();
+                var clientDescription=$('#client-description').val();
+                var template=$('.client').first().clone()
+                                            .removeClass('hide')
+                                            .addClass(clientId);
+                template.find('.title').html(clientId);
+                template.find('.description').html(clientDescription);
+                $('.client-container').append(template);
+                socket.emit('create-session',{
+                    id:clientId,
+                    description:clientDescription
+                })
+            });
+
+            socket.on("init",function(data){
+                $('.client-container .client').not(':first').remove();
+                console.log(`data`, data);
+                for (let i = 0; i < data.length; i++) {
+                    const session = data[i];
+                    var clientId=session.id;
+                    var clientDescription=session.description;
+                    var template=$('.client').first().clone()
+                                                .removeClass('hide')
+                                                .addClass(clientId);
+                    template.find('.title').html(clientId);
+                    template.find('.description').html(clientDescription);
+                    $('.client-container').append(template);
+
+                    if(session.ready){
+                        $(`.client.${session.id} .logs`).append($('<li>').text("Whatsapp is ready"));
+                    }else{
+
+                        $(`.client.${session.id} .logs`).append($('<li>').text("Connecting . . ."));
+                    }
+                }
+            })
+
+            socket.on('remove-session',function (id) {
+                $(`.client.${id}`).remove();
+            })
+            socket.on("message",function(data){
+                $(`.client.${data.id} .logs`).append($('<li>').text(data.text));
+            });
+
+            socket.on("qr",function(data){
+                $(`.client.${data.id} #qrcode`).attr('src',data.src);
+                $(`.client.${data.id} #qrcode`).show();
+            });
+
+            socket.on("ready",function(data){
+                $(`.client.${data.id} #qrcode`).hide();
+
+            });
+            socket.on("authenticated",function(data){
+                $(`.client.${data.id} #qrcode`).hide();
+            });
+        });
+    </script>
+</body>
+</html>
