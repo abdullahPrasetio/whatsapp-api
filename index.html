@@ -18,7 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js" integrity="sha512-eVL5Lb9al9FzgR63gDs1MxcDS2wFu3loYAgjIH0+Hg38tCS8Ag62dwKyH+wzDb+QauDpEZjXbMn11blw8cbTJQ==" crossorigin="anonymous"></script>
     <script>
         $(document).ready(function(){
-            var socket=io.connect('http://localhost:3000',{path:'/socket.io'});
+            var socket=io();
             socket.on("message",function(msg){
                 console.log(msg);
                 $('.logs').append($('<li>').text(msg));
