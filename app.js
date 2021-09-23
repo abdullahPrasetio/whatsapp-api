@@ -49,9 +49,30 @@ const client = new Client({
   session: sessionCfg,
 });
 
-client.on("message", (msg) => {
-  if (msg.body == "!ping") {
-    msg.reply("pong");
+client.on("message", async (msg) => {
+  const splitMessage = await msg.body.split(" ");
+  if (splitMessage[0] == "ayat") {
+    const reply = await axios
+      .get(
+        `https://quranenc.com/api/translation/aya/indonesian_complex/${splitMessage[1]}/${splitMessage[2]}`
+      )
+      .then((res) => {
+        msg.reply(
+          `Surah : ${res.data.result.sura} \nAyat : ${res.data.result.aya} \n\nText : ${res.data.result.arabic_text} \n\nTranslate : ${res.data.result.translation} \n\nCatatan : ${res.data.result.footnotes}`
+        );
+      });
+  } else if (splitMessage[0] == "surat") {
+    const replySurah = await axios
+      .get(
+        `https://quranenc.com/api/translation/sura/indonesian_complex/${splitMessage[1]}`
+      )
+      .then((res) => {
+        var message = "";
+        res.data.result.forEach((element) => {
+          message += `Surah : ${element.sura} \nAyat : ${element.aya} \n\nText : ${element.arabic_text} \n\nTranslate : ${element.translation} \n\nCatatan : ${element.footnotes}\n\n\n\n`;
+        });
+        msg.reply(message);
+      });
   }
 });
 
